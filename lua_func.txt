@@ -1,0 +1,281 @@
+int luaL_ref (lua_State *L, int t);
+	在当前栈索引t处的元素是一个table, 在该table中创建一个对象, 对象是当前栈顶的元素, 并返回创建对象在表中的索引值, 之后会pop栈顶的对象; (即将栈顶元素放到t对应的table中)
+
+lua_createtable 
+	原型: void lua_createtable (lua_State *L, int narr, int nrec); 
+	描述: 创建一个新的table并将之放在栈顶.narr是该table数组部分的长度,nrec是该table hash部分的长度. 
+	    当我们确切的知道要放多少元素到table的时候,使用这个函数,lua可以预分配一些内存,提升性能. 
+	    如果不确定要存放多少元素可以使用 lua_newtable 函数来创建table. 
+     
+lua_newtable 
+	原型: void lua_newtable (lua_State *L); 
+	描述: 创建一个新的table并将之放在栈顶. 等同于lua_createtable(L, 0, 0).  
+ 
+lua_getfield 
+	原型: void lua_getfield (lua_State *L, int index, const char *k); 
+	描述: 将t[k]元素push到栈顶. 其中t是index处的table. 
+	    这个函数可能触发index元方法. 
+ 
+lua_setfield 
+	原型: void lua_setfield (lua_State *L, int index, const char *k); 
+	描述: 为table中的key赋值. t[k] = v . 其中t是index处的table , v为栈顶元素. 
+	    这个函数可能触发newindex元方法. 
+	    调用完成后弹出栈顶元素(value).  
+
+lua_gettable 
+	原型: void lua_gettable (lua_State *L, int index); 
+	描述: 将t[k]元素push到栈顶. 其中t是index处的table,k为栈顶元素. 
+	    这个函数可能触发index元方法. 
+	    调用完成后弹出栈顶元素(key). 
+     
+lua_settable 
+	原型: void lua_settable (lua_State *L, int index); 
+	描述: 为table中的key赋值. t[k] = v . 其中t是index处的table , v为栈顶元素. k为-2处的元素. 
+	    这个函数可能触发newindex元方法. 
+	    调用完成后弹出栈顶两个元素(key , value) 
+     
+lua_rawget 
+	原型: void lua_rawget (lua_State *L, int index); 
+	描述: 与lua_gettable函数类似, 但是不会触发index元方法. 
+	描述: 将t[k]元素push到栈顶. 其中t是index处的table,k为栈顶元素. 
+	    这个函数可能触发index元方法. 
+	    调用完成后弹出栈顶元素(key). 
+ 
+lua_rawset 
+	原型: void lua_rawset (lua_State *L, int index); 
+	描述: 与lua_settable函数类似, 但是不会触发newindex元方法. 
+	描述: 为table中的key赋值. t[k] = v . 其中t是index处的table , v为栈顶元素. k为-2处的元素. 
+	    这个函数可能触发newindex元方法. 
+	    调用完成后弹出栈顶两个元素(key , value) 
+
+lua_rawgeti 
+	原型: void lua_rawgeti (lua_State *L, int index, int n); 
+	描述: 将t[n]元素push到栈顶.其中t是index处的table. 
+	    这个函数不会触发index元方法. 
+ 
+lua_rawseti 
+	原型: void lua_rawseti (lua_State *L, int index, int n); 
+	描述: 为table中的key赋值. t[n] = v .其中t是index处的table , v为栈顶元素. 
+	    这个函数不会触发newindex元方法. 
+	    调用完成后弹出栈顶元素. 
+ 
+lua_rawgetp 
+	原型: void lua_rawgetp (lua_State *L, int index, const void *p); 
+	描述: 将t[p]元素push到栈顶.其中t是index处的table. p是一个lightuserdata. 
+	    这个函数不会触发index元方法. 
+	 
+lua_rawsetp 
+	原型: void lua_rawsetp (lua_State *L, int index, const void *p); 
+	描述: 为table中的key赋值. t[p] = v .其中t是index处的table , p是一个lightuserdata , v为栈顶元素. 
+	    这个函数不会触发newindex元方法. 
+	    调用完成后弹出栈顶元素. 
+	 
+lua_getmetatable 
+	原型: int lua_getmetatable (lua_State *L, int index); 
+	描述: 将index处元素的元表push到栈顶. 如果该元素没有元表, 函数返回0 , 不改变栈. 
+ 
+lua_setmetatable 
+	原型: void lua_setmetatable (lua_State *L, int index); 
+	描述: 将栈顶元素设置为index处元素的元表. 
+	    调用完成后弹出栈顶元素. 
+ 
+lua_istable 
+	原型: int lua_istable (lua_State *L, int index); 
+	描述: 判断index处元素是否为一个table , 如果是返回1,否则返回0. 
+ 
+lua_pushglobaltable 
+	原型: void lua_pushglobaltable (lua_State *L); 
+	描述: 将lua的全局表放在栈顶. 
+
+luaL_newmetatable 
+	原型: int luaL_newmetatable (lua_State *L, const char *tname); 
+	描述: 如果注册表中已经有名为tname的key,则返回0. 
+	    否则创建一个新table作为userdata的元表. 这个元表存储在注册表中,并以tname为key. 返回1. 
+	    函数完成后将该元表置于栈顶. 
+     
+luaL_getmetatable 
+	原型: void luaL_getmetatable (lua_State *L, const char *tname); 
+	描述: 将注册表中以tname为key的元表push到栈顶. 
+ 
+luaL_setmetatable 
+	原型: void luaL_setmetatable (lua_State *L, const char *tname); 
+	描述: 将栈顶元素存储到注册表中, 它的key为tname. 
+	      把一个 table 弹出堆栈，并将其设为给定索引处的值的 metatable 。
+	      
+luaL_getsubtable 
+	原型: int luaL_getsubtable (lua_State *L, int idx, const char *fname); 
+	描述: 将 t[fname] push到栈顶, 其中t是index处的table , 并且 t[fname] 也为一个table. 
+	    如果 t[fname] 原本就存在,返回 true ,否则返回false,并且将 t[fname] 新建为一张空表. 
+
+lua_getglobal 
+	原型: void lua_getglobal (lua_State *L, const char *name); 
+	描述: 将 t[name] 元素push到栈顶, 其中t为全局表. 
+
+lua_setglobal 
+	原型: void lua_setglobal (lua_State *L, const char *name); 
+	描述: 为table中的key赋值. t[name] = v . 其中t为全局表. v为栈顶元素. 
+	    调用完成后弹出栈顶元素(v). 
+	     
+luaL_newlibtable 
+	原型: void luaL_newlibtable (lua_State *L, const luaL_Reg l[]); 
+	描述: 创建一张空表, lua预先分配足够的内存用来存储我们创建的函数库. 
+	    稍后我们可以使用 luaL_setfuncs 函数注册我们的函数库. 
+	 
+luaL_setfuncs 
+	原型: void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup); 
+	描述: 将所有 luaL_Reg数组中的函数注册到栈顶的table中.  
+	    当upvalue个数不为0时,所创建的所有函数共享这些upvalue. -2到-(nup+1)的元素为要注册的upvalue. 
+	    (注意:这些upvalue是c中的upvalue,不是lua中的upvalue,可以在注册的c函数中通过 lua_upvalueindex(n)获取其值.) 
+	    调用完成后弹出栈顶的所有upvalue. 
+	 
+luaL_newlib 
+	原型: void luaL_newlib (lua_State *L, const luaL_Reg *l); 
+	描述: 创建一个新的table , 并将luaL_Reg数组中的函数注册到其中. 
+	    它是一个宏 (luaL_newlibtable(L,l), luaL_setfuncs(L,l,0)) 
+	     
+lua_next 
+	原型: int lua_next (lua_State *L, int index); 
+	描述: 该函数用来遍历一个table. 
+	    从栈顶弹出一个key , 并且push一个 key-value对(栈顶key的下一个键值对) ,到栈顶. 
+	    如果table中没有更多的元素, 函数返回0. 
+	    遍历开始时栈顶为一个nil , 函数取出第一个键值对. 
+	     
+	    通常遍历方法为: 
+	    lua_pushnil(L);  // first key 
+	    while (lua_next(L, t) != 0) { 
+		// uses 'key' (at index -2) and 'value' (at index -1) 
+		printf("%s - %s\n", 
+		lua_typename(L, lua_type(L, -2)), 
+		lua_typename(L, lua_type(L, -1))); 
+		// removes 'value'; keeps 'key' for next iteration  
+		lua_pop(L, 1); 
+	    } 
+	    注意: 在遍历table的时候 ,除非明确的知道key为字符串,不要对栈上的key使用 lua_tolstring 函数 , 
+	    因为这样有可能改变key的类型 , 影响下一次 lua_next调用. 
+	     
+lua_rawlen 
+	原型: size_t lua_rawlen (lua_State *L, int index); 
+	描述: 获取index处元素的长度. 
+	    对于字符串来说,返回字符串长度. 
+	    对于table来说,返回#操作符的长度. 不受元方法影响. 
+	    对于userdata来说,返回内存的大小. 
+	    其他元素返回0. 
+	     
+lua_len 
+    原型: void lua_len (lua_State *L, int index); 
+    描述: 获取index处元素#操作符的结果 , 放置在栈顶. 
+
+lua_gettop
+	int lua_gettop (lua_State *L);
+	返回栈顶元素的索引。 因为索引是从 1 开始编号的， 所以这个结果等于堆栈上的元素个数（因此返回 0 表示堆栈为空）
+
+luaL_newmetatable
+	int luaL_newmetatable (lua_State *L, const char *tname);
+	如果注册表中已经有Key为tname的数据则返回0. 否则创建一个新表作为userdata的metatable，并在注册表中注册它然后返回1. 不过两种情况都会把注册表中tname相关的值压入堆栈
+
+lua_pop
+	lua_pop(L,num)函数从栈顶开始移除。
+	当num>0时从栈顶移除指定个数 。
+	当num=0时栈不受影响
+	当num=-1时栈中元素全部移除 
+	其他负数逻辑就有点乱了，建议不要使用其他(<-1)负值。最终的解释权还得看lua_settop.
+
+lua_settop
+	lua_settop函数说明
+	该函数用于指定栈的高度，栈只能从栈顶压栈，不能从栈底添加数据。所以栈底的数据会保持不变。
+	当新的高度大于原来的高度时，会从栈顶压入数据，压入的数据不可用(因为是随机的)。
+	当新的高度小于原来的高度时，会从栈顶移除多余的元素。
+	当输入参数为负数时，表示从栈顶开始的索引（最栈顶元素为-1）。该函数会移除栈顶到该元素之间的所以元素。-1则无，-2 则移除-1 。-3则移除-1，-2。以此类推。
+	但是负数编号不能超出栈底的负数索引，超出会抛出异常。lua_pop函数及是使用了该特性。
+
+lua_newtable
+	void lua_newtable (lua_State *L);
+	创建一个空 table ，并将之压入堆栈。 它等价于 lua_createtable(L, 0, 0) 。
+
+lua_gettop
+	int lua_gettop (lua_State *L);
+	返回栈顶元素的索引。 因为索引是从 1 开始编号的， 所以这个结果等于堆栈上的元素个数（因此返回 0 表示堆栈为空）。
+
+
+luaL_newmetatable
+	int luaL_newmetatable (lua_State *L, const char *tname);
+	如果注册表中已经有Key为tname的数据则返回0. 否则创建一个新表作为userdata的metatable，并在注册表中注册它然后返回1. 不过两种情况都会把注册表中tname相关的值压入堆栈。
+
+
+luaL_checkudata
+	void *luaL_checkudata (lua_State *L, int narg, const char *tname);
+	Checks whether the function argument narg is a userdata of the type tname (see luaL_newmetatable).
+
+
+lua_pushstring
+	void lua_pushstring (lua_State *L, const char *s);
+	把指针 s 指向的以零结尾的字符串压栈。 Lua 对这个字符串做一次内存拷贝（或是复用一个拷贝）， 因此 s 处的内存在函数返回后，可以释放掉或是重用于其它用途。 字符串中不能包含有零字符；第一个碰到的零字符会认为是字符串的结束。
+
+
+lua_pushlstring
+	void lua_pushlstring (lua_State *L, const char *s, size_t len);
+	把指针 s 指向的长度为 len 的字符串压栈。 Lua 对这个字符串做一次内存拷贝（或是复用一个拷贝）， 因此 s 处的内存在函数返回后，可以释放掉或是重用于其它用途。 字符串内可以保存有零字符。
+
+
+lua_pushvalue
+	void lua_pushvalue (lua_State *L, int index);
+	把堆栈上给定有效处索引处的元素作一个拷贝压栈。
+
+lua_settable
+	void lua_settable (lua_State *L, int index);
+	作一个等价于 t[k] = v 的操作， 这里 t 是一个给定有效索引 index 处的值， v 指栈顶的值， 而 k 是栈顶之下的那个值。
+	这个函数会把键和值都从堆栈中弹出。 和在 Lua 中一样，这个函数可能触发 "newindex" 事件的元方法 （参见 §2.8）。
+             
+lua_pushcfunction
+	void lua_pushcfunction (lua_State *L, lua_CFunction f);
+	将一个 C 函数压入堆栈。 这个函数接收一个 C 函数指针，并将一个类型为 function 的 Lua 值 压入堆栈。当这个栈定的值被调用时，将触发对应的 C 函数。
+	注册到 Lua 中的任何函数都必须遵循正确的协议来接收参数和返回值 （参见 lua_CFunction）。
+
+lua_pushcfunction 是作为一个宏定义出现的：
+	#define lua_pushcfunction(L,f) lua_pushcclosure(L,f,0)
+
+lua_setmetatable
+	int lua_setmetatable (lua_State *L, int index);
+	把一个 table 弹出堆栈，并将其设为给定索引处的值的 metatable 。
+
+lua_pushcclosure
+	void lua_pushcclosure (lua_State *L, lua_CFunction fn, int n);
+	把一个新的 C closure 压入堆栈。
+	当创建了一个 C 函数后，你可以给它关联一些值，这样就是在创建一个 C closure （参见 §3.4）； 接下来无论函数何时被调用，这些值都可以被这个函数访问到。 
+	为了将一些值关联到一个 C 函数上， 首先这些值需要先被压入堆栈（如果有多个值，第一个先压）。 
+	接下来调用 lua_pushcclosure 来创建出 closure 并把这个 C 函数压到堆栈上。 
+	参数 n 告之函数有多少个值需要关联到函数上。 lua_pushcclosure 也会把这些值从栈上弹出。
+
+lua_newuserdata
+	void *lua_newuserdata (lua_State *L, size_t size);
+	这个函数分配分配一块指定大小的内存块， 把内存块地址作为一个完整的 userdata 压入堆栈，并返回这个地址。
+	userdata 代表 Lua 中的 C 值。 完整的 userdata 代表一块内存。 它是一个对象（就像 table 那样的对象）： 你必须创建它，它有着自己的元表，而且它在被回收时，可以被监测到。 
+	一个完整的 userdata 只和它自己相等（在等于的原生作用下）。
+	当 Lua 通过 gc 元方法回收一个完整的 userdata 时， Lua 调用这个元方法并把 userdata 标记为已终止。 等到这个 userdata 再次被收集的时候，Lua 会释放掉相关的内存。
+
+lua_touserdata
+	void *lua_touserdata (lua_State *L, int index);
+	如果给定索引处的值是一个完整的 userdata ，函数返回内存块的地址。 如果值是一个 light userdata ，那么就返回它表示的指针。 否则，返回 NULL 。
+
+lua_setfenv(L, -3)
+	-3是u的位置，相当于把栈顶元素peer设置为u的环境表
+	此时虚拟栈：stack: u, p　
+
+  
+/* 其他概念: 
+    1.伪索引: 
+        Lua栈的正常索引 从栈顶算,栈顶为-1,向栈低递减. 从栈低算,栈低为1,向栈顶递增. 
+        伪索引是一种索引,他不在栈的位置中,通过一个宏来定义伪索引的位置. 
+        伪索引被用来访问注册表,或者在lua_CFunction中访问upvalue. 
+ 
+    2.注册表: 
+        Lua的注册表是一个预定义的table, 可以提供给c api存储一切想要存储的值. 
+        注册表通过 LUA_REGISTRYINDEX 伪索引来访问. 
+        例如 lua_getfield 函数可以像下面这样使用来获取注册表中的一个以"hello"为key的值 : 
+            lua_getfield( L , LUA_REGISTRYINDEX , "hello"); 
+         
+    3. upvalue: 
+        在使用 lua_pushcfunction 或者 luaL_setfuncs 将一个lua_CFunction 注册到Lua环境中时, 
+        可以同时为这个函数设置一些upvalue .  
+        而后在这些lua_CFunction 中可以使用 lua_upvalueindex(n) 函数来获取对应位置的upvalue. 
+*/  
